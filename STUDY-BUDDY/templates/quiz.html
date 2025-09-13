@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Study Buddy - Quiz</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: "Roboto", sans-serif;
+      background: #f4f7fb;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+    .container { max-width: 800px; width: 90%; margin: 30px auto; }
+    h1, h2 { text-align: center; color: #333; }
+    .card {
+      background: #fff; padding: 20px; margin-bottom: 25px;
+      border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+    }
+    input[type="text"], input[type="number"] {
+      width: 100%; padding: 10px; margin: 10px 0;
+      border-radius: 8px; border: 1px solid #ccc; font-size: 16px;
+    }
+    button {
+      background: #4CAF50; color: white; border: none;
+      padding: 12px 20px; margin-top: 10px; border-radius: 8px;
+      cursor: pointer; font-size: 16px; transition: background 0.3s;
+    }
+    button:hover { background: #45a049; }
+
+    .quiz-container { margin-top: 20px; }
+    .quiz-card {
+      background: #fff; border-radius: 12px; box-shadow: 0px 3px 8px rgba(0,0,0,0.1);
+      padding: 18px; margin-bottom: 20px; text-align: left;
+    }
+    .quiz-question { font-size: 18px; font-weight: bold; color: #222; }
+    .quiz-options { margin-top: 10px; }
+    .quiz-options label {
+      display: block; margin: 6px 0; padding: 6px;
+      background: #f7f7f7; border-radius: 6px; cursor: pointer;
+    }
+    .correct { background: #d4edda !important; border: 1px solid #28a745; color: #155724; }
+    .wrong { background: #f8d7da !important; border: 1px solid #dc3545; color: #721c24; }
+
+    .result { margin-top: 20px; font-size: 18px; font-weight: bold; color: #4CAF50; text-align: center; }
+    .success { color: green; font-weight: 600; }
+    .error { color: red; font-weight: 600; }
+    a { display: inline-block; margin-top: 20px; text-decoration: none; color: #007BFF; font-weight: 600; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📘 AI Study Buddy</h1>
+
+    <!-- Quiz Section -->
+    <div class="card">
+      <h2>📝 Quiz Generator</h2>
+      <input type="text" id="topic" placeholder="Enter a topic" />
+      <input type="number" id="count" placeholder="Enter number of Questions (Max. 80)" min="1" max="80" />
+      <button onclick="generateQuiz()">Generate Quiz</button>
+      <div id="quiz-container" class="quiz-container"></div>
+      <div id="quiz-result" class="result"></div>
+    </div>
+
+    <a href="/">⬅ Back to Home</a>
+  </div>
+
+<script>
+  let correctAnswers = {};
+
+  async function generateQuiz() {
+    const topic = document.getElementById("topic").value.trim();
+    const count = document.getElementById("count").value;
+    const container = document.getElementById("quiz-container");
+    const resultBox = document.getElementById("quiz-result");
+
+    container.innerHTML = "<p>⚡ Generating quiz...</p>";
+    resultBox.innerHTML = "";
+
+    try {
+      const res = await fetch("/api/quiz", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ subject: topic || "General Knowledge", num_questions: count || 5 })
+      });
+      const data = await res.json();
+
+      if (data.quiz) {   // ✅ aligned with app.py
+        container.innerHTML = "";
+        renderQuestions(data.quiz, container);
+
+        const checkBtn = document.createElement("button");
+        checkBtn.textContent = "Check Score";
+        checkBtn.onclick = checkScore;
+        container.appendChild(checkBtn);
+      } else {
+        container.innerHTML = `<p class='error'>❌ ${data.error || "Invalid quiz format"}</p>`;
+      }
+    } catch (err) {
+      container.innerHTML = `<p class='error'>❌ Network error</p>`;
+    }
+  }
+
+  function renderQuestions(questions, container) {
+    correctAnswers = {};
+    questions.forEach((q, i) => {
+      const qId = `q${i+1}`;
+      correctAnswers[qId] = q.answer;
+
+      const card = document.createElement("div");
+      card.className = "quiz-card";
+      card.innerHTML = `
+        <div class="quiz-question">Q${i+1}: ${q.question}</div>
+        <div class="quiz-options">
+          ${q.options.map(opt => {
+            const val = (opt.split(")")[0] || "").trim().charAt(0);
+            return `<label data-q="${qId}" data-opt="${val}">
+                      <input type="radio" name="${qId}" value="${val}"> ${opt}
+                    </label>`;
+          }).join("")}
+        </div>
+      `;
+      container.appendChild(card);
+    });
+  }
+
+  function checkScore() {
+    let score = 0;
+    const total = Object.keys(correctAnswers).length;
+
+    for (let q of Object.keys(correctAnswers)) {
+      const selected = document.querySelector(`input[name="${q}"]:checked`);
+      const correctVal = correctAnswers[q];
+
+      const labels = document.querySelectorAll(`label[data-q="${q}"]`);
+      labels.forEach(label => {
+        const opt = label.getAttribute("data-opt");
+        label.classList.remove("correct", "wrong");
+        if (correctVal && opt === correctVal) label.classList.add("correct");
+        if (selected && selected.value === opt && correctVal && opt !== correctVal) {
+          label.classList.add("wrong");
+        }
+      });
+
+      if (selected && correctVal && selected.value === correctVal) score++;
+    }
+
+    document.getElementById("quiz-result").innerText = `Your Score: ${score} / ${total}`;
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Study Buddy</title>
+  <style>
+    body {
+      font-family: "Roboto", Arial, sans-serif;
+      background: linear-gradient(to right, #e0f2fe, #fdf2f8);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      text-align: center;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin: 0;
+    }
+
+    p {
+      font-size: 1.2rem;
+      color: #333;
+      margin: 0;
+    }
+
+    .button-container {
+      display: flex;
+      gap: 2rem;
+      margin-top: 1rem;
+    }
+
+    .btn {
+      background: linear-gradient(to bottom right, #3b82f6, #06b6d4);
+      color: white;
+      font-size: 1.2rem;
+      padding: 1.2rem 2rem;
+      border-radius: 1rem;
+      box-shadow: 0px 4px 10px rgba(0,0,0,0.2);
+      cursor: pointer;
+      border: none;
+      text-decoration: none;   /* make links look like buttons */
+      display: inline-block;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0px 6px 14px rgba(0,0,0,0.25);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📘 AI Study Buddy</h1>
+    <p>Choose how you want to study today:</p>
+
+    <div class="button-container">
+      <a href="/chat" class="btn">💬 Chat with Tutor</a>
+      <a href="/quiz" class="btn">📝 Take a Quiz</a>
+    </div>
+  </div>
+</body>
+</html>
