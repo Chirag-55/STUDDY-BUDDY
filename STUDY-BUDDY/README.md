@@ -18,5 +18,5 @@ An AI-powered study assistant with two main features:
 
 ### 1. Clone the repo
 ```bash
-git clone https://github.com/yourusername/ai-study-buddy.git
-cd ai-study-buddy
+git clone https://github.com/yourusername/STUDY-BUDDY.git
+cd STUDY-BUDDY
